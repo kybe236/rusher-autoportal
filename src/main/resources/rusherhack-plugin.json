@@ -1,0 +1,13 @@
+{
+  "Plugin-Class": "org.kybe.Main",
+  "Name": "Portal Maker",
+  "Version": "${plugin_version}",
+  "Description": "Makes Portals wow",
+  "Authors": [
+    "kybe236"
+  ],
+  "Minecraft-Versions": [
+    "1.21",
+    "1.20.4"
+  ]
+}
