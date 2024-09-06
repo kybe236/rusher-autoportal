@@ -102,7 +102,7 @@ public class PortalMakerModule extends ToggleableModule {
 				this.setToggled(false);
 			} else {
 				for (BlockPos pos : placeBlocks) {
-					if (blocksPlaced > blockPlacesPerTick.getValue()) {
+					if (blocksPlaced >= blockPlacesPerTick.getValue()) {
 						break;
 					}
 					if (mc.level.getBlockState(pos).getBlock() == Blocks.OBSIDIAN || !mc.level.getBlockState(pos).canBeReplaced()) {
@@ -120,7 +120,7 @@ public class PortalMakerModule extends ToggleableModule {
 		} else { // Else, keep breaking blocks
 			for (BlockPos pos : breakBlocks) {
 				if (!mc.level.getBlockState(pos).canBeReplaced() && mc.level.getBlockState(pos).getBlock() != Blocks.OBSIDIAN) {
-					if (blocksBroken > blockBreaksPerTick.getValue()) {
+					if (blocksBroken >= blockBreaksPerTick.getValue()) {
 						break;
 					}
 					kb.breakBlock(pos);

@@ -6,6 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.world.InteractionHand;
 import org.rusherhack.client.api.RusherHackAPI;
+import org.rusherhack.client.api.utils.ChatUtils;
 
 public class KBUtils {
 	int packets = 0;
@@ -64,11 +65,12 @@ public class KBUtils {
 	public static void placeBlock(BlockPos pos, boolean grim) {
 		if (mc.player == null || mc.gameMode == null) return;
 
+		RusherHackAPI.getRotationManager().updateRotation(pos);
+
 		if (grim) {
 			mc.player.connection.send(new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND, BlockPos.ZERO, Direction.UP));
 		}
 
-		RusherHackAPI.getRotationManager().updateRotation(pos);
 		RusherHackAPI.interactions().useBlock(
 				pos,
 				grim ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND,
@@ -76,11 +78,13 @@ public class KBUtils {
 				false
 		);
 
+		ChatUtils.print("Placing block at " + pos.getX() + " " + pos.getY() + " " + pos.getZ());
+
+		mc.player.swing(grim ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND);
+
 		if (grim) {
 			mc.player.connection.send(new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND, BlockPos.ZERO, Direction.UP));
 		}
-
-		mc.player.swing(InteractionHand.MAIN_HAND);
 	}
 }
 
