@@ -321,12 +321,8 @@ public class PortalMakerModule extends ToggleableModule {
 			ChatUtils.print(Component.empty().append(prefix).append("Finished making Portal"));
 			finished = 3;
 
-			ChatUtils.print(Component.empty().append(prefix).append("Switching from " + initialItemNewSlot + " to " + initialSlot));
 			mc.setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(mc.player));
-			mc.gameMode.handleInventoryMouseClick(mc.player.containerMenu.containerId, initialItemNewSlot, initialSlot, ClickType.SWAP, mc.player);
-			mc.setScreen(null);
-			mc.setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(mc.player));
-			ChatUtils.print(Component.empty().append(prefix).append("Switching from " + initalFlintAndSteelNewSlot + " to " + initalFlintAndSteelSlot));
+			mc.gameMode.handleInventoryMouseClick(mc.player.containerMenu.containerId, initialItemNewSlot, initialSlot, ClickType.SWAP, mc.player);;
 			mc.gameMode.handleInventoryMouseClick(mc.player.containerMenu.containerId, initalFlintAndSteelNewSlot, initalFlintAndSteelSlot, ClickType.SWAP, mc.player);
 			mc.setScreen(null);
 		}
