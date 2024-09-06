@@ -12,6 +12,7 @@ import org.rusherhack.client.api.feature.module.ModuleCategory;
 import org.rusherhack.client.api.feature.module.ToggleableModule;
 import org.rusherhack.client.api.utils.ChatUtils;
 import org.rusherhack.client.api.utils.InventoryUtils;
+import org.rusherhack.core.event.stage.Stage;
 import org.rusherhack.core.event.subscribe.Subscribe;
 import org.rusherhack.core.setting.BooleanSetting;
 import org.rusherhack.core.setting.NumberSetting;
@@ -30,6 +31,10 @@ public class PortalMakerModule extends ToggleableModule {
 	int blocksBroken, blocksPlaced;
 	KBUtils kb = new KBUtils();
 	int finished = 3;
+	int initialSlot = 0;
+	int initialItemNewSlot = -1;
+	int initalFlintAndSteelSlot = 0;
+	int initalFlintAndSteelNewSlot = 0;
 
 	/*
 	 * Settings
@@ -52,6 +57,7 @@ public class PortalMakerModule extends ToggleableModule {
 			});
 	private final BooleanSetting grim = new BooleanSetting("Grim", "Grim", false);
 	private final BooleanSetting light = new BooleanSetting("Auto Light", "Auto Light the portel", false);
+	ArrayList<BlockPos> lastPlacedPos = new ArrayList<>();
 
 	public PortalMakerModule() {
 		super("PortalMaker", "Makes Portals wow", ModuleCategory.CLIENT);
@@ -70,7 +76,7 @@ public class PortalMakerModule extends ToggleableModule {
 	/*
 	 * Main loop
 	 */
-	@Subscribe
+	@Subscribe(stage = Stage.PRE)
 	public void onTick(EventUpdate e) {
 		// Null checks
 		if (mc.level == null || mc.player == null) {
@@ -102,6 +108,14 @@ public class PortalMakerModule extends ToggleableModule {
 				this.setToggled(false);
 			} else {
 				for (BlockPos pos : placeBlocks) {
+					for (BlockPos lastPos : lastPlacedPos) {
+						if (pos.equals(lastPos)) {
+							return;
+						}
+					}
+				}
+				lastPlacedPos.clear();
+				for (BlockPos pos : placeBlocks) {
 					if (blocksPlaced >= blockPlacesPerTick.getValue()) {
 						break;
 					}
@@ -113,6 +127,8 @@ public class PortalMakerModule extends ToggleableModule {
 						return;
 					}
 					placeBlock(pos, grim.getValue());
+					lastPlacedPos.add(pos);
+
 					blocksPlaced++;
 				}
 				blocksPlaced = 0;
@@ -173,7 +189,7 @@ public class PortalMakerModule extends ToggleableModule {
 		blocks.add(forward(left(pos, 1), 1).above(3));
 	}
 
-	public static boolean switchToObsidian() {
+	public boolean switchToObsidian() {
 		if (mc.player == null || mc.player.getInventory() == null) return false;
 		int slot = InventoryUtils.findItem(Items.OBSIDIAN, true, false);
 		int currentSlot = mc.player.getInventory().selected;
@@ -182,6 +198,7 @@ public class PortalMakerModule extends ToggleableModule {
 			ChatUtils.print(Component.empty().append(prefix).append("No obsidian found in inventory"));
 			return false;
 		}
+		if(this.initialItemNewSlot == -1) this.initialItemNewSlot = slot;
 
 		if (slot == currentSlot) {
 			return true;
@@ -198,7 +215,7 @@ public class PortalMakerModule extends ToggleableModule {
 		return true;
 	}
 
-	public static boolean switchToFlintAndSteal() {
+	public boolean switchToFlintAndSteal() {
 		if (mc.player == null || mc.player.getInventory() == null) return false;
 		int slot = InventoryUtils.findItem(Items.FLINT_AND_STEEL, true, false);
 		int currentSlot = mc.player.getInventory().selected;
@@ -220,6 +237,10 @@ public class PortalMakerModule extends ToggleableModule {
 			mc.gameMode.handleInventoryMouseClick(mc.player.containerMenu.containerId, slot, currentSlot, ClickType.SWAP, mc.player);
 			mc.setScreen(null);
 		}
+
+		this.initalFlintAndSteelNewSlot = currentSlot;
+		this.initalFlintAndSteelSlot = slot;
+
 		return true;
 	}
 
@@ -284,15 +305,30 @@ public class PortalMakerModule extends ToggleableModule {
 
 	@Override
 	public void onEnable() {
+		if (mc.level == null || mc.player == null) {
+			this.getLogger().error("Level or player is null");
+			this.setToggled(false);
+			return;
+		}
 		ChatUtils.print(Component.empty().append(prefix).append("Started making Portal"));
+		initialSlot = mc.player.getInventory().selected;
 		finished = 3;
 	}
 
 	@Override
 	public void onDisable() {
-		if(mc.level != null) {
+		if(mc.level != null && mc.player != null) {
 			ChatUtils.print(Component.empty().append(prefix).append("Finished making Portal"));
 			finished = 3;
+
+			ChatUtils.print(Component.empty().append(prefix).append("Switching from " + initialItemNewSlot + " to " + initialSlot));
+			mc.setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(mc.player));
+			mc.gameMode.handleInventoryMouseClick(mc.player.containerMenu.containerId, initialItemNewSlot, initialSlot, ClickType.SWAP, mc.player);
+			mc.setScreen(null);
+			mc.setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(mc.player));
+			ChatUtils.print(Component.empty().append(prefix).append("Switching from " + initalFlintAndSteelNewSlot + " to " + initalFlintAndSteelSlot));
+			mc.gameMode.handleInventoryMouseClick(mc.player.containerMenu.containerId, initalFlintAndSteelNewSlot, initalFlintAndSteelSlot, ClickType.SWAP, mc.player);
+			mc.setScreen(null);
 		}
 	}
 }

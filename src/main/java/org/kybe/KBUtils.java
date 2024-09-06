@@ -68,7 +68,7 @@ public class KBUtils {
 		RusherHackAPI.getRotationManager().updateRotation(pos);
 
 		if (grim) {
-			mc.player.connection.send(new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND, BlockPos.ZERO, Direction.UP));
+			mc.player.connection.send(new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND, BlockPos.ZERO, Direction.DOWN));
 		}
 
 		RusherHackAPI.interactions().useBlock(
@@ -78,12 +78,10 @@ public class KBUtils {
 				false
 		);
 
-		ChatUtils.print("Placing block at " + pos.getX() + " " + pos.getY() + " " + pos.getZ());
-
 		mc.player.swing(grim ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND);
 
 		if (grim) {
-			mc.player.connection.send(new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND, BlockPos.ZERO, Direction.UP));
+			mc.player.connection.send(new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND, BlockPos.ZERO, Direction.DOWN));
 		}
 	}
 }
